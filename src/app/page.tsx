@@ -10,8 +10,8 @@ import Link from "next/link";
 interface Props {
   posts: [IPost];
 }
-
-export default async function Home() {
+async function fetchData(): Promise<Props> {
+  "use server"
   const query = `*[_type == "post"]{
     _id, 
     _createdAt,
@@ -24,36 +24,18 @@ export default async function Home() {
     "slug": slug.current,
     body,
   }`;
-  const posts: IPost[] = await client.fetch(query);
 
+  const posts: Props = await client.fetch(query);
+  return posts
+}
+export default async function Home() {
+
+  const postss:Props = await fetchData()
   return (
     <main>
       <Hero />
-      <Blog post={posts}/>
+      <Blog post={postss} />
       page
     </main>
   );
 }
-
-// export const getServerSideProps = async () => {
-//   const query = `*[_type == "post"]{
-//     _id, 
-//     _createdAt,
-//     title,
-//     author-> {
-//         name,
-//         image
-//     },
-//     mainImage,
-//     "slug": slug.current,
-//     body,
-//   }`;
-
-//   const posts = await client.fetch(query);
-
-//   return {
-//     props: {
-//       posts,
-//     },
-//   };
-// }
